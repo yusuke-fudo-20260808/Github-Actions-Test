@@ -10,7 +10,7 @@ terraform {
 
   backend "azurerm" {
     resource_group_name  = "rg-terraform-state"
-    storage_account_name = "実際のStorageAccount名"
+    storage_account_name = "sttfstate20260809"
     container_name       = "tfstate"
     key                  = "github-actions-test.tfstate"
 
