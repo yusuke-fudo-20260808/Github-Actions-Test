@@ -15,5 +15,5 @@ provider "azurerm" {
 
 resource "azurerm_resource_group" "test" {
   name     = "rg-github-actions-test"
-  location = "Japan East"
+  location = "Japan West"
 }
