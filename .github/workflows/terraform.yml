@@ -1,47 +1,160 @@
-name: Terraform Azure OIDC Test
+name: Terraform
 
 on:
-  push:
+  pull_request:
     branches:
-      - main
+      - dev
+      - stage
+      - prod
+
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Target Environment"
+        required: true
+        type: choice
+        options:
+          - dev
+          - stage
+          - prod
 
 permissions:
   id-token: write
   contents: read
+  pull-requests: write
+
+env:
+  TF_VERSION: "1.8.5"
 
 jobs:
-  terraform:
+  terraform-plan:
+    if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
-
-    env:
-      ARM_USE_OIDC: true
-      ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
-      ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
-      ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v3
+      - name: Set working directory
+        id: envdir
+        run: |
+          case "${{ github.base_ref }}" in
+            dev)
+              echo "WORKDIR=./codes/Dev" >> $GITHUB_ENV
+              ;;
+            stage)
+              echo "WORKDIR=./codes/Stage" >> $GITHUB_ENV
+              ;;
+            prod)
+              echo "WORKDIR=./codes/Prod" >> $GITHUB_ENV
+              ;;
+          esac
 
-      - name: Azure Login
-        uses: azure/login@v3
+      - name: Azure Login (OIDC)
+        uses: azure/login@v2
         with:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+
+      - name: Setup TFLint
+        uses: terraform-linters/setup-tflint@v4
+
       - name: Terraform Init
+        working-directory: ${{ env.WORKDIR }}
+        run: terraform init
+
+      - name: Terraform Fmt
+        working-directory: ${{ env.WORKDIR }}
+        run: terraform fmt -check -recursive
+
+      - name: Terraform Validate
+        working-directory: ${{ env.WORKDIR }}
+        run: terraform validate
+
+      - name: TFLint
+        working-directory: ${{ env.WORKDIR }}
+        run: |
+          tflint --init
+          tflint
+
+      - name: Terraform Plan
+        working-directory: ${{ env.WORKDIR }}
+        run: |
+          terraform plan -no-color -out=tfplan
+          terraform show -no-color tfplan > plan.txt
+
+      - name: Comment Plan Result
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const plan = fs.readFileSync(
+              '${{ env.WORKDIR }}/plan.txt',
+              'utf8'
+            );
+
+            github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.payload.pull_request.number,
+              body:
+                "## Terraform Plan Result\n```terraform\n" +
+                plan.substring(0, 65000) +
+                "\n```"
+            });
+  terraform-apply:
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    environment: ${{ github.event.inputs.environment }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set working directory
+        run: |
+          case "${{ github.event.inputs.environment }}" in
+            dev)
+              echo "WORKDIR=./codes/Dev" >> $GITHUB_ENV
+              ;;
+            stage)
+              echo "WORKDIR=./codes/Stage" >> $GITHUB_ENV
+              ;;
+            prod)
+              echo "WORKDIR=./codes/Prod" >> $GITHUB_ENV
+              ;;
+          esac
+
+      - name: Azure Login (OIDC)
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+
+      - name: Terraform Init
+        working-directory: ${{ env.WORKDIR }}
         run: terraform init
 
       - name: Terraform Validate
+        working-directory: ${{ env.WORKDIR }}
         run: terraform validate
 
       - name: Terraform Plan
-        run: terraform plan
+        working-directory: ${{ env.WORKDIR }}
+        run: terraform plan -out=tfplan
 
       - name: Terraform Apply
-        run: terraform apply -auto-approve
-        
+        working-directory: ${{ env.WORKDIR }}
+        run: terraform apply -auto-approve tfplan
