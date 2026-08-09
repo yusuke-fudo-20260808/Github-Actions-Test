@@ -1,11 +1,20 @@
 terraform {
   required_version = ">= 1.5.0"
+
+  required_providers {
+    azurerm = {
+      source  = "hashicorp/azurerm"
+      version = "~> 4.0"
+    }
+  }
 }
 
-resource "terraform_data" "test" {
-  input = "GitHub Actions Terraform Test"
+provider "azurerm" {
+  features {}
 }
 
-output "message" {
-  value = terraform_data.test.output
+data "azurerm_client_config" "current" {}
+
+output "tenant_id" {
+  value = data.azurerm_client_config.current.tenant_id
 }
