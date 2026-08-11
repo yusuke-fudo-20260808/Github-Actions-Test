@@ -42,7 +42,7 @@ resource "azurerm_subnet" "dev" {
   for_each = local.dev_subnets
 
   name                 = each.value.name
-  resource_group_name  = var.resource_group_name
+  resource_group_name  = "rg-psynaps-prd"
   virtual_network_name = data.azurerm_virtual_network.this.name
   address_prefixes     = [each.value.prefix]
 
@@ -62,7 +62,7 @@ resource "azurerm_subnet" "dev" {
 
 resource "azurerm_subnet" "bastion" {
   name                 = local.bastion_subnet.name
-  resource_group_name  = var.resource_group_name
+  resource_group_name  = "rg-psynaps-prd"
   virtual_network_name = data.azurerm_virtual_network.this.name
   address_prefixes     = [local.bastion_subnet.prefix]
 }
@@ -70,7 +70,7 @@ resource "azurerm_subnet" "bastion" {
 resource "azurerm_network_security_group" "dev" {
   name                = "nsg-psynaps-dev"
   location            = var.location
-  resource_group_name = var.resource_group_name
+  resource_group_name = "rg-psynaps-prd"
 
   tags = local.network_tags
 }
@@ -78,7 +78,7 @@ resource "azurerm_network_security_group" "dev" {
 resource "azurerm_network_security_group" "bastion" {
   name                = "nsg-azurebastion-psynaps"
   location            = var.location
-  resource_group_name = var.resource_group_name
+  resource_group_name = "rg-psynaps-prd"
 
   security_rule {
     name                       = "AllowHttpsInbound"
@@ -182,7 +182,7 @@ resource "azurerm_network_security_group" "bastion" {
 resource "azurerm_route_table" "dev" {
   name                          = "rt-psynaps-dev"
   location                      = var.location
-  resource_group_name           = var.resource_group_name
+  resource_group_name           = "rg-psynaps-prd"
   bgp_route_propagation_enabled = true
 
   route {
