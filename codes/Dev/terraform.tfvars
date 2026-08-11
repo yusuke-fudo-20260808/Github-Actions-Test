@@ -1,4 +1,4 @@
-subscription_id = "0a8ea8c9-e4f9-480e-9e1d-ef3315581cc2"
+subscription_id = "ed694d74-dc45-4cf9-9174-69a0cf39186f"
 #resource_group_name = "rg-psynaps-dev"
 location = "Japan East"
 #vnet_name           = "vnet-psynaps-prd"
