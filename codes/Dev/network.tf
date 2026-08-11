@@ -35,7 +35,7 @@ locals {
 
 data "azurerm_virtual_network" "this" {
   name                = local.vnet_name
-  resource_group_name = var.resource_group_name
+  resource_group_name = "rg-psynaps-prd"
 }
 
 resource "azurerm_subnet" "dev" {
