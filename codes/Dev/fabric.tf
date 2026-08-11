@@ -6,7 +6,7 @@ resource "azurerm_fabric_capacity" "this" {
 
   administration_members = [
     "azfw-test@youthk800gmail.onmicrosoft.com",
-    "youth.k800_gmail.com#EXT#@youthk800gmail.onmicrosoft.com",
+    "fabrictest@youthk800gmail.onmicrosoft.com",
   ]
 
   sku {
