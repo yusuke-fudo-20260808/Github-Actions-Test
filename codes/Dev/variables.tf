@@ -8,10 +8,10 @@ variable "subscription_id" {
 #  type        = string
 #}
 
-#variable "location" {
-#  description = "Azureリージョン"
-#  type        = string
-#}
+variable "location" {
+  description = "Azureリージョン"
+  type        = string
+}
 
 #variable "vnet_name" {
 #  description = "仮想ネットワーク名"
