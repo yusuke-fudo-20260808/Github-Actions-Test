@@ -76,18 +76,6 @@ resource "azurerm_subnet" "bastion" {
   address_prefixes     = [local.bastion_subnet.prefix]
 }
 
-data "azurerm_subnet" "dnsout" {
-  name                 = local.reserved_subnets.dnsout.name
-  resource_group_name  = var.resource_group_name
-  virtual_network_name = data.azurerm_virtual_network.this.name
-}
-
-data "azurerm_subnet" "gateway" {
-  name                 = local.reserved_subnets.gateway.name
-  resource_group_name  = var.resource_group_name
-  virtual_network_name = data.azurerm_virtual_network.this.name
-}
-
 resource "azurerm_network_security_group" "dev" {
   name                = "nsg-psynaps-dev"
   location            = var.location
