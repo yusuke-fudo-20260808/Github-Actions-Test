@@ -3,10 +3,10 @@ variable "subscription_id" {
   type        = string
 }
 
-#variable "resource_group_name" {
-#  description = "リソースグループ名"
-#  type        = string
-#}
+variable "resource_group_name" {
+  description = "リソースグループ名"
+  type        = string
+}
 
 variable "location" {
   description = "Azureリージョン"
@@ -18,7 +18,7 @@ variable "location" {
 #  type        = string
 #}
 
-#variable "environment" {
-#  description = "環境識別子（dev/test/prod）"
-#  type        = string
-#}
+variable "environment" {
+  description = "環境識別子（dev/test/prod）"
+  type        = string
+}
