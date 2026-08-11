@@ -1,6 +1,6 @@
 
 resource "azurerm_fabric_capacity" "this" {
-  name                = "fabriccapacitydev"
+  name                = "fabriccapacitydev20260811"
   resource_group_name = var.resource_group_name
   location            = var.location
 
