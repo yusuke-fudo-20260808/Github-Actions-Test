@@ -31,15 +31,6 @@ locals {
     name   = "AzureBastionSubnet"
     prefix = "10.14.165.192/26"
   }
-
-  reserved_subnets = {
-    dnsout = {
-      name = "snet-psynaps-prd-dnsout"
-    }
-    gateway = {
-      name = "GatewaySubnet"
-    }
-  }
 }
 
 data "azurerm_virtual_network" "this" {
