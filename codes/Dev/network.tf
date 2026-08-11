@@ -34,17 +34,12 @@ locals {
 
   reserved_subnets = {
     dnsout = {
-      name   = "snet-dnsout-psynaps-prd"
-      prefix = "10.14.165.144/28"
+      name = "snet-psynaps-prd-dnsout"
     }
     gateway = {
-      name   = "GatewaySubnet"
-      prefix = "10.14.165.160/27"
+      name = "GatewaySubnet"
     }
   }
-
-  prod_subnet_prefixes = ["10.14.164.0/26", "10.14.164.64/27", "10.14.164.96/28"]
-  stg_subnet_prefixes  = ["10.14.166.0/26", "10.14.166.64/27", "10.14.166.96/28"]
 }
 
 data "azurerm_virtual_network" "this" {
@@ -81,96 +76,22 @@ resource "azurerm_subnet" "bastion" {
   address_prefixes     = [local.bastion_subnet.prefix]
 }
 
-resource "azurerm_subnet" "dnsout" {
+data "azurerm_subnet" "dnsout" {
   name                 = local.reserved_subnets.dnsout.name
   resource_group_name  = var.resource_group_name
   virtual_network_name = data.azurerm_virtual_network.this.name
-  address_prefixes     = [local.reserved_subnets.dnsout.prefix]
 }
 
-resource "azurerm_subnet" "gateway" {
+data "azurerm_subnet" "gateway" {
   name                 = local.reserved_subnets.gateway.name
   resource_group_name  = var.resource_group_name
   virtual_network_name = data.azurerm_virtual_network.this.name
-  address_prefixes     = [local.reserved_subnets.gateway.prefix]
 }
 
 resource "azurerm_network_security_group" "dev" {
   name                = "nsg-psynaps-dev"
   location            = var.location
   resource_group_name = var.resource_group_name
-
-  security_rule {
-    name                       = "deny-prod-subnet-01"
-    priority                   = 100
-    direction                  = "Inbound"
-    access                     = "Deny"
-    protocol                   = "*"
-    source_port_range          = "*"
-    destination_port_range     = "*"
-    source_address_prefix      = local.prod_subnet_prefixes[0]
-    destination_address_prefix = "*"
-  }
-
-  security_rule {
-    name                       = "deny-prod-subnet-02"
-    priority                   = 110
-    direction                  = "Inbound"
-    access                     = "Deny"
-    protocol                   = "*"
-    source_port_range          = "*"
-    destination_port_range     = "*"
-    source_address_prefix      = local.prod_subnet_prefixes[1]
-    destination_address_prefix = "*"
-  }
-
-  security_rule {
-    name                       = "deny-prod-subnet-03"
-    priority                   = 120
-    direction                  = "Inbound"
-    access                     = "Deny"
-    protocol                   = "*"
-    source_port_range          = "*"
-    destination_port_range     = "*"
-    source_address_prefix      = local.prod_subnet_prefixes[2]
-    destination_address_prefix = "*"
-  }
-
-  security_rule {
-    name                       = "deny-stg-subnet-01"
-    priority                   = 200
-    direction                  = "Inbound"
-    access                     = "Deny"
-    protocol                   = "*"
-    source_port_range          = "*"
-    destination_port_range     = "*"
-    source_address_prefix      = local.stg_subnet_prefixes[0]
-    destination_address_prefix = "*"
-  }
-
-  security_rule {
-    name                       = "deny-stg-subnet-02"
-    priority                   = 210
-    direction                  = "Inbound"
-    access                     = "Deny"
-    protocol                   = "*"
-    source_port_range          = "*"
-    destination_port_range     = "*"
-    source_address_prefix      = local.stg_subnet_prefixes[1]
-    destination_address_prefix = "*"
-  }
-
-  security_rule {
-    name                       = "deny-stg-subnet-03"
-    priority                   = 220
-    direction                  = "Inbound"
-    access                     = "Deny"
-    protocol                   = "*"
-    source_port_range          = "*"
-    destination_port_range     = "*"
-    source_address_prefix      = local.stg_subnet_prefixes[2]
-    destination_address_prefix = "*"
-  }
 
   tags = local.network_tags
 }
