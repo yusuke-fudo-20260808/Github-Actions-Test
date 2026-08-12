@@ -50,8 +50,8 @@ resource "azurerm_storage_account" "this" {
   }
 
   blob_properties {
-    versioning_enabled   = false
-    change_feed_enabled  = false
+    versioning_enabled       = false
+    change_feed_enabled      = false
     last_access_time_enabled = false
   }
 
