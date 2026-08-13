@@ -22,13 +22,3 @@ variable "environment" {
   description = "環境識別子（dev/test/prod）"
   type        = string
 }
-
-variable "container_registry_name" {
-  description = "既存のAzure Container Registry名"
-  type        = string
-}
-
-variable "container_registry_resource_group_name" {
-  description = "既存のAzure Container Registryが存在するリソースグループ名"
-  type        = string
-}
