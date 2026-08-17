@@ -71,6 +71,9 @@ resource "azurerm_storage_table" "this_private" {
 
   name               = each.value
   storage_account_id = azurerm_storage_account.this_private.id
+  depends_on = [
+    azurerm_private_endpoint.storage,
+  azurerm_private_dns_zone_virtual_network_link.storage_table]
 }
 
 resource "azurerm_private_dns_zone" "storage_blob" {
