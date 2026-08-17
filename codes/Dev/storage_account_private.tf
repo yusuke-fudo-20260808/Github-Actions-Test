@@ -29,7 +29,7 @@ locals {
 }
 
 resource "azurerm_storage_account" "this_private" {
-  name                            = "stdwgetlpsynapsdev"
+  name                            = "teststorage20260817"
   resource_group_name             = var.resource_group_name
   location                        = var.location
   account_tier                    = "Standard"
