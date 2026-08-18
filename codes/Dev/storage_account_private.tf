@@ -36,7 +36,7 @@ resource "azurerm_storage_account" "this_private" {
   account_replication_type        = "LRS"
   account_kind                    = "StorageV2"
   access_tier                     = "Hot"
-  public_network_access_enabled   = false
+  public_network_access_enabled   = true
   https_traffic_only_enabled      = true
   min_tls_version                 = "TLS1_2"
   allow_nested_items_to_be_public = true
@@ -44,7 +44,7 @@ resource "azurerm_storage_account" "this_private" {
   default_to_oauth_authentication = false
 
   network_rules {
-    default_action = "Deny"
+    default_action = "Allow"
     bypass         = ["AzureServices"]
   }
 
