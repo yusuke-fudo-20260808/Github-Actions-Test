@@ -36,7 +36,7 @@ resource "azurerm_storage_account" "this_private" {
   account_replication_type        = "LRS"
   account_kind                    = "StorageV2"
   access_tier                     = "Hot"
-  public_network_access_enabled   = true
+  public_network_access_enabled   = false
   https_traffic_only_enabled      = true
   min_tls_version                 = "TLS1_2"
   allow_nested_items_to_be_public = true
