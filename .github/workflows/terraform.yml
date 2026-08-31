@@ -34,9 +34,9 @@ jobs:
   terraform-plan:
     if: |
       github.event_name == 'pull_request' &&
-      (github.head_ref == 'dev' ||
-       github.head_ref == 'stage' ||
-       github.head_ref == 'prod')
+      (github.base_ref == 'dev' ||
+       github.base_ref == 'stage' ||
+       github.base_ref == 'prod')
 
     runs-on: ubuntu-latest
 
