@@ -78,6 +78,7 @@ jobs:
         uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: ${{ env.TF_VERSION }}
+          terraform_wrapper: false
 
       - name: Setup TFLint
         uses: terraform-linters/setup-tflint@v4
@@ -114,8 +115,9 @@ jobs:
 
       - name: Terraform Plan
         working-directory: ${{ env.WORKDIR }}
+        shell: bash
         run: |
-          set -x
+          set +e
           terraform plan -no-color -input=false -out=tfplan
           echo "plan exit code=$?"
           ls -la
