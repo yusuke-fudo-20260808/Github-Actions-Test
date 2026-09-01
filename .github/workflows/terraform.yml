@@ -55,7 +55,7 @@ jobs:
 
       - name: Set working directory
         run: |
-          case "${{ github.head_ref }}" in
+          case "${{ github.base_ref }}" in
             dev)
               echo "WORKDIR=./codes/Dev" >> $GITHUB_ENV
               ;;
