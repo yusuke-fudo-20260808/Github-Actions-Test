@@ -115,8 +115,12 @@ jobs:
       - name: Terraform Plan
         working-directory: ${{ env.WORKDIR }}
         run: |
+          set -x
           terraform plan -no-color -input=false -out=tfplan
+          echo "plan exit code=$?"
+          ls -la
           terraform show -no-color tfplan > plan.txt
+          echo "show exit code=$?"
 
       - name: Comment Plan Result
         uses: actions/github-script@v7
