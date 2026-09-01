@@ -1,3 +1,7 @@
+#=====================================
+#特定のコードをデプロイ
+#=====================================
+
 name: Terraform
 
 on:
@@ -15,6 +19,11 @@ on:
           - dev
           - stage
           - prod
+      target:
+        description: "Terraform Target"
+        required: false
+        type: string
+          
 
 permissions:
   id-token: write
@@ -186,7 +195,14 @@ jobs:
 
       - name: Terraform Plan
         working-directory: ${{ env.WORKDIR }}
-        run: terraform plan -out=tfplan
+        run: |
+          if [ -n "${{ github.event.inputs.target }}" ]; then
+            terraform plan \
+              -target=${{ github.event.inputs.target }} \
+              -out=tfplan
+          else
+            terraform plan -out=tfplan
+          fi
 
       - name: Terraform Apply
         working-directory: ${{ env.WORKDIR }}
