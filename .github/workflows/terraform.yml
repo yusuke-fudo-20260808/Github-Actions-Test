@@ -1,7 +1,3 @@
-#=====================================
-#特定のコードをデプロイ
-#=====================================
-
 name: Terraform
 
 on:
@@ -19,11 +15,6 @@ on:
           - dev
           - stage
           - prod
-      target:
-        description: "Terraform Target"
-        required: false
-        type: string
-          
 
 permissions:
   id-token: write
@@ -118,11 +109,41 @@ jobs:
         shell: bash
         run: |
           set +e
-          terraform plan -no-color -input=false -out=tfplan
-          echo "plan exit code=$?"
-          ls -la
+          set -o pipefail
+
+          terraform plan \
+            -no-color \
+            -input=false \
+            -out=tfplan \
+            2>&1 | tee terraform-plan.log
+
+          PLAN_EXIT_CODE=${PIPESTATUS[0]}
+
+          echo "terraform plan exit code: ${PLAN_EXIT_CODE}"
+
+          echo "===== Terraform Error locations ====="
+          grep -n -i -E "error:|forbidden|conflict|failed|timeout" terraform-plan.log || true
+
+          if [ "${PLAN_EXIT_CODE}" -ne 0 ]; then
+            echo "Terraform plan failed."
+            exit "${PLAN_EXIT_CODE}"
+          fi
+
           terraform show -no-color tfplan > plan.txt
-          echo "show exit code=$?"
+          SHOW_EXIT_CODE=$?
+
+          echo "terraform show exit code: ${SHOW_EXIT_CODE}"
+          exit "${SHOW_EXIT_CODE}"
+
+
+      - name: Upload Terraform diagnostic log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: terraform-plan-log
+          path: ${{ env.WORKDIR }}/terraform-plan.log
+          if-no-files-found: warn
+          retention-days: 3
 
       - name: Comment Plan Result
         uses: actions/github-script@v7
@@ -201,14 +222,7 @@ jobs:
 
       - name: Terraform Plan
         working-directory: ${{ env.WORKDIR }}
-        run: |
-          if [ -n "${{ github.event.inputs.target }}" ]; then
-            terraform plan \
-              -target=${{ github.event.inputs.target }} \
-              -out=tfplan
-          else
-            terraform plan -out=tfplan
-          fi
+        run: terraform plan -out=tfplan
 
       - name: Terraform Apply
         working-directory: ${{ env.WORKDIR }}
