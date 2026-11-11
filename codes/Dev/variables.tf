@@ -3,11 +3,6 @@ variable "subscription_id" {
   type        = string
 }
 
-variable "resource_group_name" {
-  description = "リソースグループ名"
-  type        = string
-}
-
 variable "location" {
   description = "Azureリージョン"
   type        = string
