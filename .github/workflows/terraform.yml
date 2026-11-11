@@ -15,6 +15,11 @@ on:
           - dev
           - stage
           - prod
+      resource_targets:
+        description: "Target resource addresses for deploy (comma-separated, optional). Example: azurerm_container_app.dwfpdf,azurerm_log_analytics_workspace.law_stg"
+        required: false
+        type: string
+        default: ""
 
 permissions:
   id-token: write
@@ -222,7 +227,23 @@ jobs:
 
       - name: Terraform Plan
         working-directory: ${{ env.WORKDIR }}
-        run: terraform plan -out=tfplan
+        shell: bash
+        run: |
+          set -e
+          TARGETS="${{ github.event.inputs.resource_targets }}"
+          CMD=(terraform plan -out=tfplan)
+
+          if [ -n "$TARGETS" ]; then
+            IFS=',' read -r -a TARGET_ARR <<< "$TARGETS"
+            for target in "${TARGET_ARR[@]}"; do
+              target="${target//[[:space:]]/}"
+              if [ -n "$target" ]; then
+                CMD+=("-target=${target}")
+              fi
+            done
+          fi
+
+          "${CMD[@]}"
 
       - name: Terraform Apply
         working-directory: ${{ env.WORKDIR }}
